@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"code.google.com/p/goprotobuf/proto"
+	"github.com/golang/protobuf/proto"
 	logger "code.google.com/p/log4go"
 	"github.com/influxdb/influxdb/configuration"
 	"github.com/influxdb/influxdb/protocol"

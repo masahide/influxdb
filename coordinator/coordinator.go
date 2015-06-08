@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"code.google.com/p/goprotobuf/proto"
+	"github.com/golang/protobuf/proto"
 	log "code.google.com/p/log4go"
 	"github.com/influxdb/influxdb/cluster"
 	"github.com/influxdb/influxdb/common"

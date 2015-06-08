@@ -91,6 +91,12 @@ type UdpInputConfig struct {
 	Database string
 }
 
+type GoRpcInputConfig struct {
+	Enabled bool
+	Network string
+	Laddr   string
+}
+
 type RaftConfig struct {
 	Port    int
 	Dir     string
@@ -149,6 +155,7 @@ type InputPlugins struct {
 	Graphite        GraphiteConfig      `toml:"graphite"`
 	CollectdInput   CollectdInputConfig `toml:"collectd"`
 	UdpInput        UdpInputConfig      `toml:"udp"`
+	GoRpcInput      GoRpcInputConfig    `toml:"gorpc"`
 	UdpServersInput []UdpInputConfig    `toml:"udp_servers"`
 }
 
@@ -187,6 +194,10 @@ type Configuration struct {
 	CollectdTypesDB  string
 
 	UdpServers []UdpInputConfig
+
+	GoRpcEnabled bool
+	GoRpcNetwork string
+	GoRpcLaddr   string
 
 	StorageDefaultEngine        string
 	StorageMaxOpenShards        int
@@ -334,6 +345,10 @@ func parseTomlConfiguration(filename string) (*Configuration, error) {
 		CollectdTypesDB:  tomlConfiguration.InputPlugins.CollectdInput.TypesDB,
 
 		UdpServers: tomlConfiguration.InputPlugins.UdpServersInput,
+
+		GoRpcEnabled: tomlConfiguration.InputPlugins.GoRpcInput.Enabled,
+		GoRpcNetwork: tomlConfiguration.InputPlugins.GoRpcInput.Network,
+		GoRpcLaddr:   tomlConfiguration.InputPlugins.GoRpcInput.Laddr,
 
 		// storage configuration
 		StorageDefaultEngine:        tomlConfiguration.Storage.DefaultEngine,

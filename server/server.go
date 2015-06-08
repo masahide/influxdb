@@ -9,6 +9,7 @@ import (
 	log "code.google.com/p/log4go"
 	"github.com/influxdb/influxdb/admin"
 	"github.com/influxdb/influxdb/api/collectd"
+	"github.com/influxdb/influxdb/api/gorpc"
 	"github.com/influxdb/influxdb/api/graphite"
 	"github.com/influxdb/influxdb/api/http"
 	"github.com/influxdb/influxdb/api/udp"
@@ -29,6 +30,7 @@ type Server struct {
 	GraphiteApi    *graphite.Server
 	CollectdApi    *collectd.Server
 	UdpApi         *udp.Server
+	GoRpcApi       *gorpc.Server
 	UdpServers     []*udp.Server
 	AdminServer    *admin.HttpServer
 	Coordinator    *coordinator.Coordinator
@@ -70,6 +72,7 @@ func NewServer(config *configuration.Configuration) (*Server, error) {
 	httpApi.EnableSsl(config.ApiHttpSslPortString(), config.ApiHttpCertPath)
 	graphiteApi := graphite.NewServer(config, coord, clusterConfig)
 	collectdApi := collectd.NewServer(config, coord, clusterConfig)
+	gorpcApi := gorpc.NewServer(config.GoRpcNetwork, config.GoRpcLaddr, coord, clusterConfig)
 	adminServer := admin.NewHttpServer(config.AdminHttpPortString())
 
 	return &Server{
@@ -80,6 +83,7 @@ func NewServer(config *configuration.Configuration) (*Server, error) {
 		GraphiteApi:    graphiteApi,
 		CollectdApi:    collectdApi,
 		Coordinator:    coord,
+		GoRpcApi:       gorpcApi,
 		AdminServer:    adminServer,
 		Config:         config,
 		RequestHandler: requestHandler,
@@ -203,6 +207,16 @@ func (self *Server) ListenAndServe() error {
 		server := udp.NewServer(addr, database, self.Coordinator, self.ClusterConfig)
 		self.UdpServers = append(self.UdpServers, server)
 		go server.ListenAndServe()
+	}
+
+	// GoRPC input
+	if self.Config.GoRpcEnabled {
+		if self.Config.GoRpcNetwork == "" || self.Config.GoRpcLaddr == "" {
+			log.Warn("Cannot start GoRPC server. please check your configuration")
+		} else {
+			log.Info("Starting GoRPC Listener on port %s %s", self.Config.GoRpcNetwork, self.Config.GoRpcLaddr)
+			go self.GoRpcApi.ListenAndServe()
+		}
 	}
 
 	log.Debug("ReportingDisabled: %s", self.Config.ReportingDisabled)

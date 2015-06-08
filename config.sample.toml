@@ -68,6 +68,14 @@ read-timeout = "5s"
   enabled = false
   # port = 5551
   # database = "db1"
+  
+  # Configure the udp api
+  [input_plugins.gorpc]
+  enabled = true
+  network = "unix"
+  laddr   = "/tmp/influxdb.sock"
+  # database = ""
+
 
 # Raft configuration
 [raft]
